@@ -8,6 +8,7 @@
                  [org.clojure/data.json "0.2.6"]
                  [org.clojure/java.jdbc "0.3.6"]
                  [org.postgresql/postgresql "9.4-1201-jdbc41"]
+                 [ring/ring-defaults "0.1.4"]
                  [http-kit "2.1.18"]
                  [compojure "1.3.3"]
                  [honeysql "0.5.2"]
