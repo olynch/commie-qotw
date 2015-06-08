@@ -2,13 +2,55 @@
 	<head>
 		<link href = '/Flat-UI/dist/css/vendor/bootstrap.min.css' rel = 'stylesheet' />
 		<link href = '/Flat-UI/dist/css/flat-ui.min.css' rel = 'stylesheet' />
+		<link href = '/css/stylesheet.css' rel = 'stylesheet' />
 		<script src = '/js/jquery.js'></script>
 		<script src = '/js/nav.js'></script>
-		<link href = '/css/stylesheet.css' rel = 'stylesheet' />
 		<title>Archives</title>
+		<script>
+			function formatDate(date) {
+				return ['Sunday', 'Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday'][date.getDay()] + ' ' + ['January', 'February', 'March', 'April', 'May', 'June', 'July', 'August', 'September', 'October', 'November', 'December'][date.getMonth()] + ' ' + String(date.getDate()) + ', ' + String(date.getFullYear()) + ' at ' + String(date.getHours()) + ':' + String(date.getMinutes());
+			}
+			function openMessage() {
+				window.open('/viewmessage.html?id=' + $(this).attr('id'));
+			}
+			$.ajax({
+				'url': '/fetch/archives',
+				'dataType': 'json',
+				'success': function(response) {
+					var table = $('table#archive-entries>tbody');
+					for (var message = 0; message < response.messages.length; message++) {
+						table.append(
+							$('<tr>').append(
+								$('<td>').text(formatDate(new Date(response.messages[message].timestamp)))
+							).append(
+								$('<td>').addClass('hover').attr('id', response.messages[message].messageID).text(response.messages[message].title).click(openMessage)
+							)
+						);
+					}
+					$('td[id].hover').bind('touchstart mouseover', function(e) {
+						e.preventDefault();
+						$(this).addClass('hover-effect');
+					}).bind('touchend', function(e) {
+						e.preventDefault();
+						$(this).removeClass('hover-effect');
+						openMessage();
+					}).bind('mouseout', function() {
+						$(this).removeClass('hover-effect');
+					});
+				}
+			});
+		</script>
 	</head>
 	<body>
 		<div id = 'body'>
+			<table id = 'archive-entries' class = 'table table-striped'>
+				<tbody>
+					<tr>
+						<td>Date</td>
+						<td>Title</td>
+					</tr>
+				</tbody>
+			</table>
 		</div>
 	</body>
 </html>

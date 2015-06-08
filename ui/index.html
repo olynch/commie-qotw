@@ -2,16 +2,10 @@
 	<head>
 		<link href = '/Flat-UI/dist/css/vendor/bootstrap.min.css' rel = 'stylesheet' />
 		<link href = '/Flat-UI/dist/css/flat-ui.min.css' rel = 'stylesheet' />
+		<link href = '/css/stylesheet.css' rel = 'stylesheet' />
 		<script src = '/js/jquery.js'></script>
 		<script src = '/js/nav.js'></script>
-		<link href = '/css/stylesheet.css' rel = 'stylesheet' />
 		<title>QOTW</title>
-		<style>
-			button#submit {
-				position:relative;
-				top:10px;
-			}
-		</style>
 		<script>
 			$(document).ready(function() {
 				$('textarea#quote').keyup(function(e) {
@@ -30,8 +24,8 @@
 						'type': 'POST',
 						'data': $('textarea#quote').val(),
 						'dataType': 'json',
-						'success': function(server_response) {
-							if (server_response.success) $('button#submit').removeClass('btn-warning').addClass('btn-success');
+						'success': function(response) {
+							if (response.success) $('button#submit').removeClass('btn-warning').addClass('btn-success');
 							else $('button#submit').removeClass('btn-warning').addClass('btn-danger');
 						},
 						'error': function() {

@@ -1,0 +1,33 @@
+<html>
+	<head>
+		<link href = '/Flat-UI/dist/css/vendor/bootstrap.min.css' rel = 'stylesheet' />
+		<link href = '/Flat-UI/dist/css/flat-ui.min.css' rel = 'stylesheet' />
+		<link href = '/css/stylesheet.css' rel = 'stylesheet' />
+		<script src = '/js/jquery.js'></script>
+		<script src = '/js/nav.js'></script>
+		<title>Message</title>
+		<script>
+			var querystring = window.location.href.substring(window.location.href.indexOf('?') + 1);
+			var query = querystring.split('&');
+			var keyValuePair
+			for (var qwarg = 0; qwarg < query.length; qwarg++) {
+				keyValuePair = query[qwarg].split('=');
+				query[keyValuePair[0]] = keyValuePair[1];
+			}
+			$.ajax({
+				'url': '/fetch/message',
+				'data': {
+					'id': query.id
+				},
+				'dataType': 'json',
+				'success': function(response) {
+					$('title').text(response.title);
+					$('p#message-body').html(response.body.replace(/\n/g, '<br />'));
+				}
+			});
+		</script>
+	</head>
+	<body class = 'allow-overflow'>
+		<p id = 'message-body'></p>
+	</body>
+</html>

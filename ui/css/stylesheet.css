@@ -3,14 +3,57 @@ nav#mainnav {
 	top:20px;
 	left:20px;
 	right:20px;
+	z-index:10;
 }
 div#body {
 	position:absolute;
 	top:100px;
 	left:20px;
 	right:20px;
+	bottom:0px;
 }
 ul.navbar-right {
 	position:relative;
 	right:10px;
+}
+
+button#submit {
+	position:relative;
+	top:10px;
+}
+
+table#archive-entries {
+	position:absolute;
+	top:0px;
+	left:0px;
+	right:0px;
+	bottom:0px;
+	overflow:auto;
+	margin-bottom:0px;
+}
+table#archive-entries>tbody>tr>td {
+	text-align:center;
+}
+td[id].hover {
+	color:black;
+	-webkit-user-select:none;
+	-webkit-touch-callout:none;
+}
+td[id].hover-effect {
+	color:#2ecc71;
+}
+
+body.allow-overflow {
+	overflow:auto;
+}
+p#message-body {
+	position:absolute;
+	top:100px;
+	left:20px;
+	right:0px;
+	bottom:0px;
+	line-height:1.1;
+	font-family:monospace;
+	font-size:12;
+	color:black;
 }
