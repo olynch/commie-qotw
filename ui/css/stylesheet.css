@@ -62,3 +62,21 @@ p#message-body, div#last-message>div.panel-body {
 	font-size:12;
 	color:black;
 }
+
+div.x-center {
+	position:absolute;
+	left:50%;
+}
+button#show-post {
+	position:absolute;
+	left:-100px;
+	width:200px;
+	height:50px;
+}
+div#vote-row {
+	position:absolute;
+	top:80px;
+	left:0px;
+	right:0px;
+	bottom:0px;
+}

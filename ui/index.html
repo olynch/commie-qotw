@@ -31,7 +31,6 @@
 				function submit() {
 					if (!$('button#submit').hasClass('btn-success')) return;
 					$('button#submit').removeClass('btn-success').addClass('btn-warning');
-					$('textarea#quote').val('');
 					$.ajax({
 						'url': '/post/submit',
 						'type': 'POST',
@@ -48,6 +47,7 @@
 							}, 1000);
 						}
 					});
+					$('textarea#quote').val('');
 				}
 				$('button#submit').click(submit);
 			});
