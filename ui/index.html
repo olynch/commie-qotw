@@ -7,7 +7,20 @@
 		<script src = '/js/nav.js'></script>
 		<title>QOTW</title>
 		<script>
+			function formatDate(date) {
+				return ['Sunday', 'Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday'][date.getDay()] + ' ' + ['January', 'February', 'March', 'April', 'May', 'June', 'July', 'August', 'September', 'October', 'November', 'December'][date.getMonth()] + ' ' + String(date.getDate()) + ', ' + String(date.getFullYear()) + ' at ' + String(date.getHours()) + ':' + String(date.getMinutes());
+			}
+			var lastMessage;
+			$.ajax({
+				'url': '/fetch/lastmessage',
+				'dataType': 'json',
+				'success': function(response) {
+					lastMessage.children('div.panel-heading').text(response.title + ' (' + formatDate(new Date(response.timestamp)) + ')');
+					lastMessage.children('div.panel-body').html(response.body.replace(/\n/g, '<br />'));
+				}
+			});
 			$(document).ready(function() {
+				lastMessage = $('div#last-message');
 				$('textarea#quote').keyup(function(e) {
 					if (e.which == 13) submit();
 					else {
@@ -20,7 +33,7 @@
 					$('button#submit').removeClass('btn-success').addClass('btn-warning');
 					$('textarea#quote').val('');
 					$.ajax({
-						'url': '/submit',
+						'url': '/post/submit',
 						'type': 'POST',
 						'data': $('textarea#quote').val(),
 						'dataType': 'json',
@@ -45,17 +58,17 @@
 			<div class = 'row'>
 				<div class = 'col-md-6'>
 					<div class = 'panel panel-default'>
-						<div class = 'panel-heading'>Most recent post</div>
-						<div class = 'panel-body'>...</div>
+						<div class = 'panel-heading'>Submit</div>
+						<div class = 'panel-body'>
+							<textarea id = 'quote' class = 'form-control' placeholder = 'Quote' rows = 5></textarea>
+							<button id = 'submit' class = 'btn btn-default'>Submit</button>
+						</div>
 					</div>
 				</div>
 				<div class = 'col-md-6'>
-					<div class = 'panel panel-default'>
-						<div class = 'panel-heading'>Submit</div>
-						<div class = 'panel-body'>
-							<textarea class = 'form-control' id = 'quote' placeholder = 'Quote' rows = 5></textarea>
-							<button class = 'btn btn-default' id = 'submit'>Submit</button>
-						</div>
+					<div id = 'last-message' class = 'panel panel-default'>
+						<div class = 'panel-heading'>Last post</div>
+						<div class = 'panel-body'>Loading...</div>
 					</div>
 				</div>
 			</div>

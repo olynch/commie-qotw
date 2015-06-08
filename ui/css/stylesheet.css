@@ -17,6 +17,9 @@ ul.navbar-right {
 	right:10px;
 }
 
+div.panel-heading {
+	font-weight:bold;
+}
 button#submit {
 	position:relative;
 	top:10px;
@@ -52,6 +55,8 @@ p#message-body {
 	left:20px;
 	right:0px;
 	bottom:0px;
+}
+p#message-body, div#last-message>div.panel-body {
 	line-height:1.1;
 	font-family:monospace;
 	font-size:12;

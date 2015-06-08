@@ -1,5 +1,5 @@
 (ns commie-qotw.core
-  [:require 
+  [:require
    [compojure.core :refer :all]
    [compojure.route :as route]
    [org.httpkit.server :refer [run-server]]
