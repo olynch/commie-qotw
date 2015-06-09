@@ -1,0 +1,69 @@
+<html>
+	<head>
+		<link href = '/Flat-UI/dist/css/vendor/bootstrap.min.css' rel = 'stylesheet' />
+		<link href = '/Flat-UI/dist/css/flat-ui.min.css' rel = 'stylesheet' />
+		<link href = '/css/stylesheet.css' rel = 'stylesheet' />
+		<script src = '/js/jquery.js'></script>
+		<script src = '/js/nav.js'></script>
+		<title>Admin Login</title>
+		<script>
+			function login(loginInfo) {
+				$.ajax({
+					'url': '/fetch/login',
+					'type': 'POST',
+					'data': {
+						'username': loginInfo.username,
+						'password': loginInfo.password
+					},
+					'dataType': 'json',
+					'success': function(response) {
+						if (response.valid) {
+							localStorage.username = loginInfo.username;
+							localStorage.password = loginInfo.password;
+							window.location.assign('/tools.html');
+						}
+						else invalidLogin();
+					},
+					'error': invalidLogin
+				});
+			}
+			function invalidLogin() {
+				$('input#password').val('');
+				$('button#submit').addClass('btn-danger');
+				setTimeout(function() {
+					$('button#submit').removeClass('btn-danger');
+				}, 2000);
+			}
+			function loginFromInputs() {
+				login({
+					'username': $('input#username').val(),
+					'password': $('input#password').val()
+				});
+				$('button#submit').removeClass('btn-success');
+			}
+			if (localStorage.username && localStorage.password) login(localStorage);
+			$(document).ready(function() {
+				$('input').keyup(function(e) {
+					if ($(this).attr('id') == 'password' && e.which == 13) loginFromInputs();
+					else {
+						if ($('input#username').val() && $('input#password').val()) $('button#submit').addClass('btn-success');
+						else $('button#submit').removeClass('btn-success');
+					}
+				});
+				$('button#submit').click(loginFromInputs);
+			});
+		</script>
+	</head>
+	<body>
+		<div id = 'body'>
+			<div class = 'panel panel-default'>
+				<div class = 'panel-heading'>Login</div>
+				<div class = 'panel-body'>
+					<input id = 'username' class = 'form-control' placeholder = 'Username' />
+					<input id = 'password' class = 'form-control' placeholder = 'Password' type = 'password' />
+					<button id = 'submit' class = 'btn btn-default'>Submit</button>
+				</div>
+			</div>
+		</div>
+	</body>
+</html>

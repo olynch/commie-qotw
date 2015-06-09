@@ -80,3 +80,11 @@ div#vote-row {
 	right:0px;
 	bottom:0px;
 }
+
+input#username, input#password {
+	width:200px;
+}
+input#password {
+	position:relative;
+	top:5px;
+}
