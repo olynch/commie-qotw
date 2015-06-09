@@ -88,3 +88,24 @@ input#password {
 	position:relative;
 	top:5px;
 }
+
+div#admins>button, div#admins>ul>li>a {
+	font-size:20;
+}
+.center {
+	text-align:center;
+}
+div#admins>ul>li.divider {
+	background-color:rgba(202,206,209,.5)
+}
+div#admins>ul>li>a>span.glyphicon-remove {
+	padding-left:20px;
+	top:5px;
+}
+div.row.shift-down {
+	position:relative;
+	top:30px;
+}
+div.submission-date, div.vote-date {
+	font-weight:bold;
+}

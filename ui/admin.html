@@ -4,7 +4,7 @@
 		<link href = '/Flat-UI/dist/css/flat-ui.min.css' rel = 'stylesheet' />
 		<link href = '/css/stylesheet.css' rel = 'stylesheet' />
 		<script src = '/js/jquery.js'></script>
-		<script src = '/js/nav.js'></script>
+		<script src = '/js/common.js'></script>
 		<title>Admin Login</title>
 		<script>
 			function login(loginInfo) {
@@ -18,8 +18,8 @@
 					'dataType': 'json',
 					'success': function(response) {
 						if (response.valid) {
-							localStorage.username = loginInfo.username;
-							localStorage.password = loginInfo.password;
+							localStorage.sessionID = response.sessionID;
+							localStorage.sessionKey = response.sessionKey;
 							window.location.assign('/tools.html');
 						}
 						else invalidLogin();

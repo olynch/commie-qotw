@@ -1,0 +1,171 @@
+<html>
+	<head>
+		<link href = '/Flat-UI/dist/css/vendor/bootstrap.min.css' rel = 'stylesheet' />
+		<link href = '/Flat-UI/dist/css/flat-ui.min.css' rel = 'stylesheet' />
+		<link href = '/css/stylesheet.css' rel = 'stylesheet' />
+		<script src = '/js/jquery.js'></script>
+		<script src = '/Flat-UI/dist/js/flat-ui.min.js'></script>
+		<script src = '/js/common.js'></script>
+		<title>Admin Tools</title>
+		<script>
+			if (!(localStorage.sessionID && localStorage.sessionKey)) alert('Not signed in, click on "Admin"');
+			function sessionData() {
+				return {
+					'sessionID': Number(localStorage.sessionID),
+					'sessionKey': localStorage.sessionKey
+				};
+			}
+			var adminsLoaded = false;
+			function loadAdmins() {
+				if (adminsLoaded) return;
+				$.ajax({
+					'url': '/fetch/admins',
+					'type': 'POST',
+					'data': sessionData(),
+					'dataType': 'json',
+					'success': function(response) {
+						var list = $('div#admins>ul');
+						for (var admin = 0; admin < response.admins.length; admin++) {
+							list.append(
+								$('<li>').append(
+									$('<a>').text(response.admins[admin]).append(
+										$('<span>').addClass('glyphicon').addClass('glyphicon-remove').click(function() {
+											var data = sessionData();
+											data.name = $(this).parent().text();
+											$.ajax({
+												'url': '/post/rmadmin',
+												'type': 'POST',
+												'data': data,
+												'dataType': 'json',
+												'success': function(response) {
+													if (response.success) $(this).parent().parent().remove();
+													else alert('Unable to remove');
+												}
+											});
+										})
+									)
+								)
+							);
+						}
+						list.append(
+							$('<li>').addClass('divider')
+						).append(
+							$('<li>').append(
+								$('<a>').addClass('center').append(
+									$('<span>').addClass('glyphicon').addClass('glyphicon-plus').click(function() {
+										//needs implementation
+									})
+								)
+							)
+						);
+						adminsLoaded = true;
+					}
+				});
+			}
+			$.ajax({
+				'url': '/post/submissions',
+				'type': 'POST',
+				'data': sessionData(),
+				'dataType': 'json',
+				'success': function(response) {
+					var submissions = $('ul#submissions');
+					for (var submission = 0; submission < response.submissions.length; submission++) {
+						submissions.append(
+							$('<li>').addClass('list-group-item').append(
+								$('<div>').addClass('submission-date').text(formatDate(new Date(response.submissions[submission].date)))
+							).append(
+								$('<div>').addClass('submission-body').text(response.submissions[submission].submission)
+							)
+						);
+					}
+				}
+			});
+			$.ajax({
+				'url': '/post/votes',
+				'type': 'POST',
+				'data': sessionData(),
+				'dataType': 'json',
+				'success': function(response) {
+					var votes = $('ul#votes');
+					for (var vote = 0; vote < response.votes.length; vote++) {
+						votes.append(
+							$('<li>').addClass('list-group-item').append(
+								$('<div>').addClass('vote-date').text(formatDate(new Date(response.votes[vote].date)))
+							).append(
+								$('<div>').addClass('vote-body').text(response.votes[vote].vote)
+							)
+						);
+					}
+				}
+			});
+			$(document).ready(function() {
+				$('div#admins>button').dropdown().parent().on('show.bs.dropdown', loadAdmins);
+				$('textarea#compose').keyup(function(e) {
+					if ($(this).val()) $('button#submit').removeClass('btn-default').addClass('btn-success');
+					else $('button#submit').removeClass('btn-success').addClass('btn-default');
+				});
+				$('button#submit').click(function() {
+					if (!$(this).hasClass('btn-success')) return;
+					$(this).removeClass('btn-success').addClass('btn-warning');
+					var data = sessionData();
+					data.message = $('textarea#compose').val();
+					$.ajax({
+						'url': '/post/compose',
+						'type': 'POST',
+						'data': data,
+						'dataType': 'json',
+						'success': function(response) {
+							if (response.success) $('button#submit').removeClass('btn-warning').addClass('btn-success');
+							else $('button#submit').removeClass('btn-warning').addClass('btn-danger');
+						},
+						'error': function() {
+							$('button#submit').removeClass('btn-warning').addClass('btn-danger');
+							setTimeout(function() {
+								$('button#submit').removeClass('btn-danger').addClass('btn-default');
+							}, 1000);
+						}
+					});
+					$('textarea#compose').val('');
+				});
+			});
+		</script>
+	</head>
+	<body>
+		<div id = 'body'>
+			<div class = 'btn-group' id = 'admins'>
+				<button class = 'btn btn-inverse dropdown-toggle' data-toggle = 'dropdown'>
+					Admins
+					<span class = 'caret'></span>
+				</button>
+				<ul class = 'dropdown-menu dropdown-menu-inverse' role = 'menu'></ul>
+			</div>
+			<div class = 'row shift-down'>
+				<div class = 'col-md-3'>
+					<div class = 'panel panel-default'>
+						<div class = 'panel-heading'>Submissions</div>
+						<div class = 'panel-body'>
+							<ul id = 'submissions' class = 'list-group'></ul>
+						</div>
+					</div>
+				</div>
+				<div class = 'col-md-3'>
+					<div class = 'panel panel-default'>
+						<div class = 'panel-heading'>Votes</div>
+						<div class = 'panel-body'>
+							<ul id = 'votes' class = 'list-group'></ul>
+						</div>
+					</div>
+				</div>
+				<div class = 'col-md-6'>
+					<div class = 'panel panel-default'>
+						<div class = 'panel-heading'>Compose</div>
+						<div class = 'panel-body'>
+							<textarea id = 'compose' class = 'form-control' placeholder = 'Post' rows = 20></textarea>
+							<button id = 'submit' class = 'btn btn-default'>Submit</button>
+						</div>
+					</div>
+				</div>
+			</div>
+		</div>
+	</body>
+</html>
