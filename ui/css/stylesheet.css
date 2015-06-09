@@ -1,3 +1,4 @@
+/*all*/
 nav#mainnav {
 	position:fixed;
 	top:20px;
@@ -16,15 +17,23 @@ ul.navbar-right {
 	position:relative;
 	right:10px;
 }
-
+div.x-center {
+	position:absolute;
+	left:50%;
+}
+div.y-center {
+	position:absolute;
+	top:50%;
+}
 div.panel-heading {
 	font-weight:bold;
 }
-button#submit {
+button#submit, button#create-user {
 	position:relative;
 	top:10px;
 }
 
+/*archives*/
 table#archive-entries {
 	position:absolute;
 	top:0px;
@@ -46,6 +55,7 @@ td[id].hover-effect {
 	color:#2ecc71;
 }
 
+/*viewmessage*/
 body.allow-overflow {
 	overflow:auto;
 }
@@ -63,10 +73,7 @@ p#message-body, div#last-message>div.panel-body {
 	color:black;
 }
 
-div.x-center {
-	position:absolute;
-	left:50%;
-}
+/*vote*/
 button#show-post {
 	position:absolute;
 	left:-100px;
@@ -81,6 +88,7 @@ div#vote-row {
 	bottom:0px;
 }
 
+/*admin*/
 input#username, input#password {
 	width:200px;
 }
@@ -89,6 +97,7 @@ input#password {
 	top:5px;
 }
 
+/*tools*/
 div#admins>button, div#admins>ul>li>a {
 	font-size:20;
 }
@@ -108,4 +117,12 @@ div.row.shift-down {
 }
 div.submission-date, div.vote-date {
 	font-weight:bold;
+}
+div#add-admin {
+	display:none;
+	position:absolute;
+	top:-105px;
+	left:-125px;
+	width:250px;
+	height:210px;
 }

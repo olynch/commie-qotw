@@ -53,7 +53,7 @@
 							$('<li>').append(
 								$('<a>').addClass('center').append(
 									$('<span>').addClass('glyphicon').addClass('glyphicon-plus').click(function() {
-										//needs implementation
+										$('div#add-admin').show();
 									})
 								)
 							)
@@ -127,6 +127,45 @@
 					});
 					$('textarea#compose').val('');
 				});
+				function createUser() {
+					var data = sessionData();
+					data.username = $('input#username').val();
+					data.password = $('input#password').val();
+					$.ajax({
+						'url': '/admin/addadmin',
+						'type': 'POST',
+						'data': data,
+						'dataType': 'json',
+						'success': function(response) {
+							if (response.success) {
+								$('div#add-admin').hide();
+								clearInputs();
+								$('button#create-user').removeClass('btn-success');
+							}
+							else creationError();
+						},
+						'error': creationError
+					});
+				}
+				function clearInputs() {
+					$('input#username').val('');
+					$('input#password').val('');
+				}
+				function creationError() {
+					clearInputs();
+					$('button#create-user').removeClass('btn-success').addClass('btn-danger');
+					setTimeout(function() {
+						$('button#create-user').removeClass('btn-danger');
+					}, 2000);
+				}
+				$('input').keyup(function(e) {
+					if ($(this).attr('id') == 'password' && e.which == 13) createUser();
+					else {
+						if ($('input#username').val() && $('input#password').val()) $('button#create-user').addClass('btn-success');
+						else $('button#create-user').removeClass('btn-success');
+					}
+				});
+				$('button#create-user').click(createUser);
 			});
 		</script>
 	</head>
@@ -164,6 +203,16 @@
 							<button id = 'submit' class = 'btn btn-default'>Submit</button>
 						</div>
 					</div>
+				</div>
+			</div>
+		</div>
+		<div class = 'x-center y-center'>
+			<div id = 'add-admin' class = 'panel panel-default'>
+				<div class = 'panel-heading'>Add Admin</div>
+				<div class = 'panel-body'>
+					<input id = 'username' class = 'form-control' placeholder = 'Username' />
+					<input id = 'password' class = 'form-control' placeholder = 'Password' />
+					<button id = 'create-user' class = 'btn btn-default'>Create</button>
 				</div>
 			</div>
 		</div>
