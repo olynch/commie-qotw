@@ -19,7 +19,7 @@
 			function loadAdmins() {
 				if (adminsLoaded) return;
 				$.ajax({
-					'url': '/fetch/admins',
+					'url': '/admin/admins',
 					'type': 'POST',
 					'data': sessionData(),
 					'dataType': 'json',
@@ -33,7 +33,7 @@
 											var data = sessionData();
 											data.name = $(this).parent().text();
 											$.ajax({
-												'url': '/post/rmadmin',
+												'url': '/admin/rmadmin',
 												'type': 'POST',
 												'data': data,
 												'dataType': 'json',
@@ -63,7 +63,7 @@
 				});
 			}
 			$.ajax({
-				'url': '/post/submissions',
+				'url': '/admin/submissions',
 				'type': 'POST',
 				'data': sessionData(),
 				'dataType': 'json',
@@ -81,7 +81,7 @@
 				}
 			});
 			$.ajax({
-				'url': '/post/votes',
+				'url': '/admin/votes',
 				'type': 'POST',
 				'data': sessionData(),
 				'dataType': 'json',
@@ -110,7 +110,7 @@
 					var data = sessionData();
 					data.message = $('textarea#compose').val();
 					$.ajax({
-						'url': '/post/compose',
+						'url': '/admin/compose',
 						'type': 'POST',
 						'data': data,
 						'dataType': 'json',
