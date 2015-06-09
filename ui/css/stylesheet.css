@@ -47,7 +47,7 @@ table#archive-entries>tbody>tr>td {
 	text-align:center;
 }
 td[id].hover {
-	color:black;
+	color:#34495e;
 	-webkit-user-select:none;
 	-webkit-touch-callout:none;
 }
