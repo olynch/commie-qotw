@@ -9,7 +9,7 @@
 		<script>
 			var lastMessage;
 			$.ajax({
-				'url': '/fetch/lastmessage',
+				'url': '/api/lastmessage',
 				'dataType': 'json',
 				'success': function(response) {
 					lastMessage.children('div.panel-heading').text(response.title + ' (' + formatDate(new Date(response.timestamp)) + ')');
@@ -29,7 +29,7 @@
 					if (!$('button#submit').hasClass('btn-success')) return;
 					$('button#submit').removeClass('btn-success').addClass('btn-warning');
 					$.ajax({
-						'url': '/post/submit',
+						'url': '/api/submit',
 						'type': 'POST',
 						'data': {
 							'quote': $('textarea#quote').val()

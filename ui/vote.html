@@ -13,7 +13,7 @@
 					if (!postCol.children().length) {
 						$(this).removeClass('btn-primary').addClass('btn-warning');
 						$.ajax({
-							'url': '/fetch/lastmessage',
+							'url': '/api/lastmessage',
 							'dataType': 'json',
 							'success': function(response) {
 								$('button#show-post').removeClass('btn-warning').addClass('btn-primary');
@@ -39,7 +39,7 @@
 					if (!$('button#submit').hasClass('btn-success')) return;
 					$('button#submit').removeClass('btn-success').addClass('btn-warning');
 					$.ajax({
-						'url': '/post/vote',
+						'url': '/api/vote',
 						'type': 'POST',
 						'data': $('textarea#vote').val(),
 						'dataType': 'json',

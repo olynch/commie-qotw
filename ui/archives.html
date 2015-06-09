@@ -11,7 +11,7 @@
 				window.open('/viewmessage.html?id=' + $(this).attr('id'));
 			}
 			$.ajax({
-				'url': '/fetch/archives',
+				'url': '/api/archives',
 				'dataType': 'json',
 				'success': function(response) {
 					var table = $('table#archive-entries>tbody');
