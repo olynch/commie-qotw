@@ -8,8 +8,13 @@
                  [org.clojure/data.json "0.2.6"]
                  [org.clojure/java.jdbc "0.3.6"]
                  [org.postgresql/postgresql "9.4-1201-jdbc41"]
-                 [ring/ring-defaults "0.1.4"]
+                 [ring/ring-defaults "0.1.5"]
+                 [ring/ring-json "0.3.1"]
                  [http-kit "2.1.18"]
                  [compojure "1.3.3"]
                  [honeysql "0.5.2"]
-                 ])
+                 [clj-time "0.9.0"]
+                 [environ "1.0.0"]
+                 ]
+  :plugins [[lein-ring "0.8.11"]]
+  :ring {:handler commie-qotw.core/app})
