@@ -2,7 +2,8 @@
   (:require [honeysql.core :as sql]
             [honeysql.helpers :refer :all]
             [clj-time.core :as t]
-            [clj-time.coerce :as c]))
+            [clj-time.coerce :as c]
+            [commie-qotw.cfg :as cfg]))
 
 ; Messages table keys:
 ; title : string
@@ -41,6 +42,20 @@
 ; userid : int
 ; expires : timestamp
 
-; returns a map of { :success bool :result [] }
+(defn pool [spec]
+  (let [cpds (doto (ComboPooledDataSource.)
+               (.setDriverClass (:classname spec))
+               (.setJdbcUrl (str "jdbc:" (:subprotocol spec) ":" (:subname spec)))
+               (.setUser (:user spec))
+               (.setPassword (:password spec))
+               (.setMaxIdleTimeExcessConnections (* 30 60))
+               (.setMaxIdleItme (* 3 60 60)))]
+    {:datasource cpds}))
+
+(def pooled-db (delay (pool cfg/db-spec)))
+
+(defn db-connection [] @pooled-db)
+
+;  { :success bool :result [] }
 (defn run [query]
   {:mock true})

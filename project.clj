@@ -15,6 +15,7 @@
                  [honeysql "0.5.2"]
                  [clj-time "0.9.0"]
                  [environ "1.0.0"]
+                 [com.mchange/c3p0 "0.9.2.1"]
                  ]
   :plugins [[lein-ring "0.8.11"]]
   :ring {:handler commie-qotw.core/app})
