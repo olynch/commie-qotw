@@ -3,7 +3,7 @@
            [java.io File])
   (:require [honeysql.core :as sql]
             [honeysql.helpers :refer :all]
-            [clojure.core.jdbc :as j]
+            [clojure.java.jdbc :as j]
             [clj-time.core :as t]
             [clj-time.coerce :as c]
             [commie-qotw.cfg :as cfg]
@@ -14,7 +14,7 @@
 ; title : string
 ; body : string
 ; id : int
-; weekid : int
+; week_id : int
 
 ; Quotes table keys:
 ; quote : string
@@ -68,10 +68,11 @@
 (defn- remove-extension [file]
  (second (re-matches #"(.*)\.[^.]*" (str file))))
 
-(defmulti ragtime.jdbc/load-files ".clj" [files]
+(defmethod ragtime.jdbc/load-files ".clj" [files]
   (for [file files]
     (-> (slurp file)
         (read-string)
+        (#(list 'do '(require '[clojure.java.jdbc :as j]) %))
         (eval)
         (update-in [:id] #(or % (-> file basename remove-extension)))
         (ragtime.jdbc/sql-migration))))
@@ -79,7 +80,7 @@
 (def ragtime-config 
   (delay
     {:datastore (ragtime.jdbc/sql-database (db-connection))
-     :migrations (ragtime.jdbc/load-resources "commie-qotw.migrations")}))
+     :migrations (ragtime.jdbc/load-directory "migrations")}))
 
 (defn load-ragtime-config [] @ragtime-config)
 
