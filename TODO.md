@@ -1,2 +1,5 @@
-- Implement 12-factor.
-- Make Clojure serve the files while developing, nginx in production.
+[ ] Implement 12-factor.
+[ ] Make Clojure serve the files while developing, nginx in production.
+[ ] Write migration infrastructure
+[ ] Write migrations
+[ ] Write API tests

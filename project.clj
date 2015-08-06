@@ -15,10 +15,11 @@
                  [honeysql "0.5.2"]
                  [clj-time "0.9.0"]
                  [environ "1.0.0"]
-                 [com.mchange/c3p0 "0.9.2.1"]
-                 [ragtime "0.4.0"]
+                 [com.mchange/c3p0 "0.9.5.1"]
+                 [ragtime "0.5.0"]
                  ]
-  :plugins [[lein-ring "0.8.11"]]
+  :plugins [[lein-ring "0.8.11"]
+            [lein-environ "1.0.0"]]
   :aliases {"migrate" ["run" "-m" "commie-qotw.db/migrate"]
             "rollback" ["run" "-m" "commie-qotw.db/rollback"]}
   :ring {:handler commie-qotw.core/app})

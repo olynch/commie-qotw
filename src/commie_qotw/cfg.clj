@@ -3,8 +3,10 @@
 
 (def db-spec
   {:classname "org.postgresql.Driver"
-   :subprotocol "postgres"
-   :subname (env :database-path)
-   ;:username (env :database-username)
-   ;:password (env :database-password)
+   :subprotocol "postgresql"
+   :host (env :database-host)
+   :port (env :database-port)
+   :db-name (env :database-db-name)
+   :user (env :database-username)
+   :password (env :database-password)
    })

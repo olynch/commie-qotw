@@ -1,7 +1,9 @@
 (ns commie-qotw.db
-  (:import com.mchange.v2.c3p0.ComboPooledDataSource)
+  (:import [com.mchange.v2.c3p0 ComboPooledDataSource]
+           [java.io File])
   (:require [honeysql.core :as sql]
             [honeysql.helpers :refer :all]
+            [clojure.core.jdbc :as j]
             [clj-time.core :as t]
             [clj-time.coerce :as c]
             [commie-qotw.cfg :as cfg]
@@ -48,7 +50,7 @@
 (defn pool [spec]
   (let [cpds (doto (ComboPooledDataSource.)
                (.setDriverClass (:classname spec))
-               (.setJdbcUrl (str "jdbc:" (:subprotocol spec) ":" (:subname spec)))
+               (.setJdbcUrl (str "jdbc:" (:subprotocol spec) "://" (:host spec) ":" (:port spec) "/" (:db-name spec)))
                (.setUser (:user spec))
                (.setPassword (:password spec))
                (.setMaxIdleTimeExcessConnections (* 30 60))
@@ -59,9 +61,24 @@
 
 (defn db-connection [] @pooled-db)
 
+(let [pattern (re-pattern (str "([^" File/separator "]*)" File/separator "?$"))]
+ (defn- basename [file]
+  (second (re-find pattern (str file)))))
+
+(defn- remove-extension [file]
+ (second (re-matches #"(.*)\.[^.]*" (str file))))
+
+(defmulti ragtime.jdbc/load-files ".clj" [files]
+  (for [file files]
+    (-> (slurp file)
+        (read-string)
+        (eval)
+        (update-in [:id] #(or % (-> file basename remove-extension)))
+        (ragtime.jdbc/sql-migration))))
+
 (def ragtime-config 
   (delay
-    {:database (ragtime.jdbc/sql-database (db-connection))
+    {:datastore (ragtime.jdbc/sql-database (db-connection))
      :migrations (ragtime.jdbc/load-resources "commie-qotw.migrations")}))
 
 (defn load-ragtime-config [] @ragtime-config)
