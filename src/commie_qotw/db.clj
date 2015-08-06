@@ -1,9 +1,12 @@
 (ns commie-qotw.db
+  (:import com.mchange.v2.c3p0.ComboPooledDataSource)
   (:require [honeysql.core :as sql]
             [honeysql.helpers :refer :all]
             [clj-time.core :as t]
             [clj-time.coerce :as c]
-            [commie-qotw.cfg :as cfg]))
+            [commie-qotw.cfg :as cfg]
+            [ragtime.repl]
+            [ragtime.jdbc]))
 
 ; Messages table keys:
 ; title : string
@@ -49,12 +52,25 @@
                (.setUser (:user spec))
                (.setPassword (:password spec))
                (.setMaxIdleTimeExcessConnections (* 30 60))
-               (.setMaxIdleItme (* 3 60 60)))]
+               (.setMaxIdleTime (* 3 60 60)))]
     {:datasource cpds}))
 
 (def pooled-db (delay (pool cfg/db-spec)))
 
 (defn db-connection [] @pooled-db)
+
+(def ragtime-config 
+  (delay
+    {:database (ragtime.jdbc/sql-database (db-connection))
+     :migrations (ragtime.jdbc/load-resources "commie-qotw.migrations")}))
+
+(defn load-ragtime-config [] @ragtime-config)
+
+(defn migrate []
+  (ragtime.repl/migrate (load-ragtime-config)))
+
+(defn rollback []
+  (ragtime.repl/rollback (load-ragtime-config)))
 
 ;  { :success bool :result [] }
 (defn run [query]

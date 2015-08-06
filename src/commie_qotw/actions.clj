@@ -1,5 +1,7 @@
 (ns commie-qotw.core
   (:require [commie-qotw.db :as db]
+            [honeysql.core :as sql]
+            [honeysql.helpers :refer :all]
             [clj-time.core :as t]
             [clj-time.coerce :as c]
             [core.match :refer :all]))
@@ -8,11 +10,14 @@
   (-> (insert-into :quotes)
       (columns :quote :timestamp)))
 
-(defn submitsquotesql [quote timestamp]
+(defn submitquotesql [quotetext timestamp]
   (-> 
     submitquotemap
-    (values [quote timestamp])
-    sql/format))
+    (values [quotetext (c/to-long timestamp)])
+    sql/format
+    ))
+
+(submitquotesql "You are. --Pher" (t/now))
 
 (def archiverangemap
   (-> (from :messages)

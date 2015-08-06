@@ -16,6 +16,9 @@
                  [clj-time "0.9.0"]
                  [environ "1.0.0"]
                  [com.mchange/c3p0 "0.9.2.1"]
+                 [ragtime "0.4.0"]
                  ]
   :plugins [[lein-ring "0.8.11"]]
+  :aliases {"migrate" ["run" "-m" "commie-qotw.db/migrate"]
+            "rollback" ["run" "-m" "commie-qotw.db/rollback"]}
   :ring {:handler commie-qotw.core/app})
