@@ -1,6 +1,6 @@
 {:up [(j/create-table-ddl
         :quotes
-        [:quote :string]
+        [:quote :text]
         [:id :int :primary :key]
         [:timestamp "timestamp with time zone"]
         [:votes :int]
