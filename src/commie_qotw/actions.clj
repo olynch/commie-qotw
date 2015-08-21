@@ -158,7 +158,7 @@
         (select :quote)
         (where [:= :week_id cur-week-id]))))
 
-(defn submissions []
+(defn get-submissions []
   (-> (get-submissions-map)
       db/query
       :result
@@ -168,7 +168,7 @@
   (-> (select :email)
       (from :users)))
 
-(defn admins []
+(defn get-admins []
   (-> (get-admins-map)
       db/query
       :result
@@ -180,6 +180,6 @@
       (where [:= :users.email email])))
 
 (defn rm-user [email]
-  (-> (rm-user-map email)
+  (-> (rm-sessions-map email)
       db/query
       response))
