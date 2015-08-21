@@ -183,3 +183,12 @@
   (-> (rm-sessions-map email)
       db/query
       response))
+
+(defn populate []
+  (db/execute! (create-new-year-map))
+  (db/execute! (create-new-week-map))
+  (submit-quote "You are.\n --Pher")
+  (submit-quote "SOO Applied.\n --Mr. Letarte")
+  (submit-quote "Let's burn his house down.\n --Yonah Bornsweil")
+  (send-message "EXAMPLE MESSAGE" "This message has been brought to you by Owen \"The Programmer\" Lynch")
+  (sign-up "root@root.org" "1337"))

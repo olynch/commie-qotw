@@ -104,3 +104,4 @@
                               (j/execute! (db-connection)))]
       {:success true :result rows-changed})
     (catch Exception e {:success false :error e})))
+

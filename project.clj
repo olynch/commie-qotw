@@ -24,5 +24,6 @@
   :plugins [[lein-ring "0.9.6"]
             [lein-environ "1.0.0"]]
   :aliases {"migrate" ["run" "-m" "commie-qotw.db/migrate"]
-            "rollback" ["run" "-m" "commie-qotw.db/rollback"]}
+            "rollback" ["run" "-m" "commie-qotw.db/rollback"]
+            "populate" ["run" "-m" "commie-qotw.actions/populate"]}
   :ring {:handler commie-qotw.core/app})
