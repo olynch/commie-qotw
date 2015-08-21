@@ -1,6 +1,7 @@
 (ns commie-qotw.db
   (:import [com.mchange.v2.c3p0 ComboPooledDataSource]
            [java.io File])
+  (:refer-clojure :exclude [update])
   (:require [honeysql.core :as sql]
             [honeysql.helpers :refer :all]
             [clojure.java.jdbc :as j]
@@ -10,41 +11,38 @@
             [ragtime.repl]
             [ragtime.jdbc]))
 
-; Messages table keys:
-; title : string
-; body : string
-; id : int
-; week_id : int
-
 ; Quotes table keys:
 ; quote : string
-; id : int
-; timestamp : timestamp with time zone
+; id : serial
+; submitted : timestamp
 ; votes : int
-; awards : int (0 = none, 1 = of week, 2 = of year)
+; awards : int (0 = none, 1 = selected for email, 2 = of week, 3 = of year)
 ; weekid : int
 
 ; Weeks table keys:
-; start : timestamp with time zone
-; end : timestamp with time zone
-; yearid : int
+; id : serial
+; start_t : timestamp
+; end_t : timestamp
+; message_title : text
+; message_body : text
+; year_id : int
 ; winner : int
 
 ; Years table keys:
-; start : timestamp with time zone
-; end : timestamp with time zone
-; winnerid : int
+; id : serial
+; start_t : timestamp
+; end_t : timestamp
+; winner_id : int
 
-; Admins table keys:
-; username : string
-; password_hash : string
-; password_salt : string
-; id : int
+; Users table keys:
+; email : varchar(256)
+; password_hash : varchar(256)
+; id : serial
 
 ; Sessions table keys:
-; key : string
-; id : int
-; userid : int
+; token : string
+; id : serial
+; user_id : int
 ; expires : timestamp
 
 (defn pool [spec]
@@ -90,6 +88,19 @@
 (defn rollback []
   (ragtime.repl/rollback (load-ragtime-config)))
 
-;  { :success bool :result [] }
-(defn run [query]
-  {:mock true})
+; In goes a HoneySQL query map, out goes {:success, :result}
+(defn query [query-map]
+  (try 
+    (let [result (->> query-map
+                      sql/format
+                      (j/query (db-connection)))]
+      {:success true :result result})
+    (catch Exception e {:success false :error e})))
+
+(defn execute! [query-map]
+  (try
+    (let [[rows-changed] (->> query-map
+                              sql/format
+                              (j/execute! (db-connection)))]
+      {:success true :result rows-changed})
+    (catch Exception e {:success false :error e})))
