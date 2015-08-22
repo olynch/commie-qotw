@@ -20,9 +20,12 @@
                  [com.mchange/c3p0 "0.9.5.1"]
                  [ragtime "0.5.1"]
                  [buddy "0.6.1"]
+                 [ring/ring-mock "0.2.0"]
+                 [org.clojure/data.json "0.2.6"]
                  ]
   :plugins [[lein-ring "0.9.6"]
-            [lein-environ "1.0.0"]]
+            [lein-environ "1.0.0"]
+            ]
   :aliases {"migrate" ["run" "-m" "commie-qotw.db/migrate"]
             "rollback" ["run" "-m" "commie-qotw.db/rollback"]
             "populate" ["run" "-m" "commie-qotw.actions/populate"]}

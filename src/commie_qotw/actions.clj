@@ -82,7 +82,9 @@
 
 (defn get-message [messageID]
   (let [{success :success result :result} (db/query (get-message-map messageID))]
-    (if (> 0 (count result)) (response result) (response {:success false}))))
+    (if (= (count result) 1)
+      (response (rename-keys (first result) {:message_title :title :message_body :body}))
+      (response {:success false}))))
 
 (def get-lastmessage-map
   (-> (select :id)
@@ -115,9 +117,10 @@
 
 (defn send-message [title body]
   (let [end-current-week-query (end-current-week-map title body)
-        create-new-week-query (create-new-week-map)]
-    (db/execute! end-current-week-query)
-    (db/execute! create-new-week-query)))
+        create-new-week-query (create-new-week-map)
+        end-res (db/execute! end-current-week-query)
+        create-res (db/execute! create-new-week-query)]
+    (response {:success (apply and (map :succcess [end-res create-res]))})))
 
 (defn sign-up-map [email password]
   (-> (insert-into :users)
