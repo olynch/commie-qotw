@@ -14,7 +14,7 @@
             [ring.util.response :refer [response]]))
 
 (defn random-token []
-  (let [random-data (nonce/random-bytes 32)]
+  (let [random-data (nonce/random-bytes 16)]
     (codecs/bytes->hex random-data)))
 
 (defn store-token-map [token user_id]

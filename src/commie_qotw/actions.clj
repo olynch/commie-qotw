@@ -187,6 +187,8 @@
       db/query
       response))
 
+(defn vote [token vote1 vote2 vote3])
+
 (defn populate []
   (db/execute! (create-new-year-map))
   (db/execute! (create-new-week-map))
