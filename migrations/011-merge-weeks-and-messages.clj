@@ -5,4 +5,5 @@
         title text,
         body text,
         id serial PRIMARY KEY,
-        week_id int"]}
+        week_id int
+        )"]}

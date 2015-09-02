@@ -3,6 +3,6 @@
       ALTER TABLE quotes
       ADD FOREIGN KEY (week_id) REFERENCES weeks (id)"]
  :down ["ALTER TABLE weeks
-        DROP FOREIGN KEY year_id;
+        DROP CONSTRAINT weeks_year_id_fkey;
         ALTER TABLE quotes
-        DROP FOREIGN KEY week_id"]}
+        DROP CONSTRAINT quotes_week_id_fkey"]}
