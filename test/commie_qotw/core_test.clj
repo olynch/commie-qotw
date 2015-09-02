@@ -1,32 +1,52 @@
 (ns commie-qotw.core-test
   (:require [clojure.test :refer :all]
             [clojure.data.json :as json]
+            [ragtime.repl :as ragtime]
             [ring.mock.request :as mock]
-            [commie-qotw.core :refer :all]))
+            [commie-qotw.core :refer :all]
+            [commie-qotw.db :as db]
+            [commie-qotw.actions :as a]))
 
-(defn json-request [uri json-map]
-  (-> (request :post uri)
-      (body (json/write-string json-map))
-      (content-type "application/json")))
+(defn wrap-fresh-db [f]
+  ; assumes a fresh db
+  (ragtime/migrate (db/load-ragtime-config))
+  (a/initialize)
+  (f)
+  (ragtime/rollback (db/load-ragtime-config) "001-create-messages")
+  (ragtime/rollback (db/load-ragtime-config) 1)
+  ; leaves with a fresh db (plus ragtime table)
+  )
 
-(defn get-response [app uri json-map]
-  (let [response (app (json-request uri json-map))]
+(use-fixtures :once wrap-fresh-db)
+
+(defn POST-request-json [uri json-map]
+  (-> (mock/request :post uri)
+      (mock/body (json/write-str json-map))
+      (mock/content-type "application/json")))
+
+(defn GET-request [uri]
+  (mock/request :get uri))
+
+(defn POST-response [app uri json-map]
+  (let [response (app (POST-request-json uri json-map))]
+    (println response)
     (json/read-str (:body response) :key-fn keyword)))
 
-(defn expected-response [app uri json-map expected-response]
-  (let [ret-json (get-response app uri json-map)]
-    (= ret-json expected-response)))
+(defn GET-response [app uri]
+  (let [response (app (GET-request uri))]
+    (json/read-str (:body response) :key-fn keyword)))
 
 (deftest test-get-message
   (testing "Sending message and then retrieving it"
-    (is (expected-response app
-                           "/api/send-message"
-                           {:title "inaugural message"
-                            :body "qotw.net is dead\nlong live qotw.net"}
-                           {:success true}))
-    (is (let [{last-msg-id :id} (get-response app "/api/lastmessage" {})]
-          (expected-response app
-                           "/api/message"
-                           {:messageID last-msg-id}
-                           {:title "inaugural message"
-                            :body "qotw.net is dead\nlong live qotw.net"}))))
+    (is (= (POST-response app
+                          "/api/send-message"
+                          {:title "inaugural message"
+                           :body "qotw.net is dead\nlong live qotw.net"})
+           {:success true}))
+    (let [{last-msg-id :id} (GET-response app "/api/lastmessage")]
+      (is (= (POST-response app
+                            "/api/message"
+                            {:messageID last-msg-id})
+             {:id last-msg-id
+              :title "inaugural message"
+              :body "qotw.net is dead\nlong live qotw.net"})))))

@@ -8,7 +8,8 @@
             [honeysql.helpers :refer :all]
             [clj-time.core :as t]
             [clj-time.coerce :as c]
-            [ring.util.response :refer [response]]
+            [ring.util.response :refer [response status content-type]]
+            [clojure.set :refer [rename-keys]]
             [clojure.core.match :as m]))
 
 (defn get-cur-week-id []
@@ -48,7 +49,7 @@
       (select :message_title :id :end_t)
       (where [:<> :end_t nil])
       (where [:>= :end_t (c/to-sql-time start)] [:< :end_t (c/to-sql-time end)])
-      (order-by :end_t :desc)))
+      (order-by [:end_t :desc])))
 
 (defn archive-date-map
   ([year month]
@@ -64,7 +65,7 @@
    (-> (from :weeks)
        (select :message_title :id :end_t)
        (where [:<> :end_t nil])
-       (order-by :end_t :desc))))
+       (order-by [:end_t :desc]))))
 
 ; Param Map -> [{:title, :id, :timestamp}]
 (defn get-archives [params]
@@ -91,11 +92,11 @@
       (from :weeks)
       (where [:<> :end_t nil])
       (limit 1)
-      (order-by :start_t :desc)))
+      (order-by [:start_t :desc])))
 
 (defn get-lastmessage []
-  (let [{success :success result :result} (db/query get-lastmessage-map)]
-    (response result)))
+  (let [{result :result success :success} (db/query get-lastmessage-map)]
+    (response (first result))))
 
 (defn create-new-year-map []
   (-> (insert-into :years)
@@ -120,7 +121,7 @@
         create-new-week-query (create-new-week-map)
         end-res (db/execute! end-current-week-query)
         create-res (db/execute! create-new-week-query)]
-    (response {:success (apply and (map :succcess [end-res create-res]))})))
+    (response {:success (every? identity (map :success [end-res create-res]))})))
 
 (defn sign-up-map [email password]
   (-> (insert-into :users)
@@ -189,11 +190,19 @@
 
 (defn vote [token vote1 vote2 vote3])
 
-(defn populate []
+(defn handle-404 []
+  (-> (response "Not found")
+      (status 404)
+      (content-type "text/plain")))
+
+(defn initialize []
   (db/execute! (create-new-year-map))
   (db/execute! (create-new-week-map))
+  (sign-up "root@root.org" "1337"))
+
+(defn populate []
+  (initialize)
   (submit-quote "You are.\n --Pher")
   (submit-quote "SOO Applied.\n --Mr. Letarte")
   (submit-quote "Let's burn his house down.\n --Yonah Bornsweil")
-  (send-message "EXAMPLE MESSAGE" "This message has been brought to you by Owen \"The Programmer\" Lynch")
-  (sign-up "root@root.org" "1337"))
+  (send-message "EXAMPLE MESSAGE" "This message has been brought to you by Owen \"The Programmer\" Lynch"))

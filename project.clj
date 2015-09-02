@@ -25,7 +25,6 @@
                  ]
   :plugins [[lein-ring "0.9.6"]
             [lein-environ "1.0.0"]
-            [lein-postgres "0.1.1"]
             ]
   :aliases {"migrate" ["run" "-m" "commie-qotw.db/migrate"]
             "rollback" ["run" "-m" "commie-qotw.db/rollback"]

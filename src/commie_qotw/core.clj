@@ -13,9 +13,9 @@
   (context "/api" []
            (POST "/submit" [quote]
                  (submit-quote quote))
-           (GET "/archives" [& params]
+           (POST "/archives" [& params]
                 (get-archives params))
-           (GET "/message" [messageID]
+           (POST "/message" [messageID]
                 (get-message messageID))
            (GET "/lastmessage" []
                 (get-lastmessage))
@@ -38,7 +38,8 @@
                  (sign-up email password))
            (POST "/rmadmin" [email]
                  (rm-user email)))
-  (route/files "/" {:root "ui"}))
+  (route/files "/" {:root "ui"})
+  (route/not-found (handle-404)))
 
 
 ; Request Map -> Response Map
