@@ -9,7 +9,9 @@
 		<script>
 			function getIndexOfQuote(messageBody, quoteNumber) {
 				var searchString = '\n' + String(quoteNumber) + '. ';
-				return messageBody.indexOf(searchString) + searchString.length;
+				var index = messageBody.indexOf(searchString);
+				if (index == -1) return index;
+				else return index + searchString.length;
 			}
 			$(document).ready(function() {
 				var voteTable = $('table#votes>tbody');
@@ -20,7 +22,7 @@
 						$('div#message-title').text('Voting on "' + response.title + '"');
 						var quoteNumber = 1;
 						var index;
-						while ((index = getIndexOfQuote(response.body, quoteNumber)) != -1) {
+						while ((index = getIndexOfQuote(response.body, quoteNumber++)) != -1) {
 							voteTable.append(
 								$('<tr>').addClass('quote').append(
 									$('<td>').text('Votes: ').append(
@@ -40,7 +42,7 @@
 						for (times = 0; times < Number(quotes.eq(i).children('td').eq(0).children('input').val()); times++) quoteVotes.push(i + 1);
 					}
 					if (quoteVotes.length > 3) {
-						alert('You can only vote 3 times');
+						alert('You can only submit 3 votes total.');
 						return;
 					}
 					$('button#submit').removeClass('btn-success').addClass('btn-warning');
@@ -52,6 +54,8 @@
 						'success': function(response) {
 							if (response.success) $('button#submit').removeClass('btn-warning').addClass('btn-success');
 							else $('button#submit').removeClass('btn-warning').addClass('btn-danger');
+							alert('Success!');
+							window.location.href = '/';
 						},
 						'error': function() {
 							$('button#submit').removeClass('btn-warning').addClass('btn-danger');
