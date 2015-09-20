@@ -49,13 +49,51 @@
 					$('textarea#quote').val('');
 				}
 				$('button#submit').click(submit);
+				function subscribe() {
+					if (!$('button#subscribe').hasClass('btn-info')) return;
+					$('button#subscribe').removeClass('btn-info').addClass('btn-warning');
+					$.ajax({
+						'url': '/api/subscribe',
+						'type': 'GET',
+						'data': {
+							'email': $('input#email').val()
+						},
+						'success': function(response) {
+							$('input#email').val('');
+							$('button#subscribe').removeClass('btn-warning');
+							if (response.success) $('button#subscribe').addClass('btn-success');
+							else {
+								$('button#subscribe').addClass('btn-danger');
+								setTimeout(function() {
+									$('button#subscribe').removeClass('btn-danger').addClass('btn-default');
+								}, 1000);
+							};
+						},
+						'error': function() {
+							$('button#subscribe').removeClass('btn-warning').addClass('btn-danger');
+							setTimeout(function() {
+								$('button#subscribe').removeClass('btn-danger').addClass('btn-default');
+							}, 1000);
+						}
+					})
+				}
+				$('input#email').keyup(function(e) {
+					if (e.which == 13) subscribe();
+					else {
+						setTimeout($.proxy(function() {
+							if ($(this).val().length) $('button#subscribe').removeClass('btn-default').addClass('btn-info');
+							else $('button#subscribe').removeClass('btn-info').addClass('btn-default');
+						}, this), 0);
+					}
+				});
+				$('button#subscribe').click(subscribe);
 			});
 		</script>
 	</head>
 	<body>
 		<div id = 'body'>
 			<div class = 'row'>
-				<div class = 'col-md-6'>
+				<div class = 'col-md-4'>
 					<div class = 'panel panel-default'>
 						<div class = 'panel-heading'>Submit</div>
 						<div class = 'panel-body'>
@@ -64,7 +102,16 @@
 						</div>
 					</div>
 				</div>
-				<div class = 'col-md-6'>
+				<div class = 'col-md-4'>
+					<div class = 'panel panel-default'>
+						<div class = 'panel-heading'>Subscribe</div>
+						<div class = 'panel-body'>
+							<input id = 'email' class = 'form-control' type = 'email' placeholder = 'e-mail address' />
+							<button id = 'subscribe' class = 'btn btn-default'>Subscribe</button>
+						</div>
+					</div>
+				</div>
+				<div class = 'col-md-4'>
 					<div id = 'last-message' class = 'panel panel-default'>
 						<div class = 'panel-heading'>Last post</div>
 						<div class = 'panel-body'>Loading...</div>
