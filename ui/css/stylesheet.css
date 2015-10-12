@@ -55,6 +55,12 @@ td[id].hover-effect {
 	color:#2ecc71;
 }
 
+/*index*/
+button#subscribe {
+	position:relative;
+	top:5px;
+}
+
 /*viewmessage*/
 body.allow-overflow {
 	overflow:auto;
