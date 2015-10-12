@@ -88,20 +88,15 @@
 (defn rollback []
   (ragtime.repl/rollback (load-ragtime-config)))
 
-; In goes a HoneySQL query map, out goes {:success, :result}
+; In goes a HoneySQL query map, out goes the result
 (defn query [query-map]
-  (try 
-    (let [result (->> query-map
-                      sql/format
-                      (j/query (db-connection)))]
-      {:success true :result result})
-    (catch Exception e {:success false :error e})))
+  (->> query-map
+       sql/format
+       (j/query (db-connection))))
 
 (defn execute! [query-map]
-  (try
-    (let [[rows-changed] (->> query-map
-                              sql/format
-                              (j/execute! (db-connection)))]
-      {:success true :result rows-changed})
-    (catch Exception e {:success false :error e})))
+  (let [[rows-changed] (->> query-map
+                            sql/format
+                            (j/execute! (db-connection)))]
+    rows-changed))
 

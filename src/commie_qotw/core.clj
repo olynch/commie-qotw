@@ -23,15 +23,13 @@
                  (send-message title body))
            (POST "/whoami" request
                  (whoami request))
+           (POST "/login" [email password]
+                 (login email password))
            #_(POST "/vote" [vote]
                    (submit-vote vote)))
   (context "/admin" []
-           (POST "/login" [email password]
-                 (login email password))
            (POST "/submissions" []
                  (get-submissions))
-           ;(POST "/votes" []
-           ;(get-votes))
            (POST "/admins" []
                  (get-admins))
            (POST "/addadmin" [email password]

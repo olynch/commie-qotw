@@ -10,6 +10,7 @@
             [clj-time.coerce :as c]
             [ring.util.response :refer [response status content-type]]
             [clojure.set :refer [rename-keys]]
+            [clojure.test :refer [deftest is]]
             [clojure.core.match :as m]))
 
 (defn get-cur-week-id []
@@ -18,8 +19,7 @@
                 (limit 1)
                 (order-by [:start_t :desc])
                 db/query)]
-           [{:success true :result ([{:id cur-week-id}] :seq)}] cur-week-id
-           [{:success false :error e}] (throw e)))
+           [([{:id cur-week-id}] :seq)] cur-week-id))
 
 (defn get-cur-year-id []
   (m/match [(-> (select :id)
@@ -27,10 +27,9 @@
                 (limit 1)
                 (order-by [:start_t :desc])
                 db/query)]
-           [{:success true :result ([{:id cur-year-id}] :seq)}] cur-year-id
-           [{:success false :error e}] (throw e)))
+           [([{:id cur-year-id}] :seq)] cur-year-id)
 
-(defn submit-quote-map 
+(defn submit-quote-map
   ([quotetext submitted week_id]
    (-> (insert-into :quotes)
        (columns :quote :submitted :week_id)
@@ -42,7 +41,7 @@
 (defn submit-quote [quote]
   (let [cur-week-id (get-cur-week-id)
         result (db/execute! (submit-quote-map quote cur-week-id))]
-    (response {:success (:success result)})))
+    (response result)))
 
 (defn archive-range-map [start end]
   (-> (from :weeks)
@@ -73,7 +72,7 @@
                            [{:month month :year year}] (archive-date-map year month)
                            [{:year year}] (archive-date-map year)
                            :else (archive-date-map))
-        result (:result (db/query query-map))]
+        result (db/query query-map)]
       (response result)))
 
 (defn get-message-map [id]
@@ -82,7 +81,7 @@
       (where [:= :id id])))
 
 (defn get-message [messageID]
-  (let [{success :success result :result} (db/query (get-message-map messageID))]
+  (let [result (db/query (get-message-map messageID))]
     (if (= (count result) 1)
       (response (rename-keys (first result) {:message_title :title :message_body :body}))
       (response {:success false}))))
@@ -95,7 +94,7 @@
       (order-by [:start_t :desc])))
 
 (defn get-lastmessage []
-  (let [{result :result success :success} (db/query get-lastmessage-map)]
+  (let [result (db/query get-lastmessage-map)]
     (response (first result))))
 
 (defn create-new-year-map []
@@ -121,7 +120,7 @@
         create-new-week-query (create-new-week-map)
         end-res (db/execute! end-current-week-query)
         create-res (db/execute! create-new-week-query)]
-    (response {:success (every? identity (map :success [end-res create-res]))})))
+    (response {:success (every? identity [end-res create-res])})) ; both not nil
 
 (defn sign-up-map [email password]
   (-> (insert-into :users)
@@ -135,8 +134,8 @@
           db/query
           count
           (>= 1))
-    (response (db/execute! (sign-up-map email password)))
-    (response {:success false :error "There is already a user with that email"})))
+    (response {:success false :error "There is already a user with that email"})
+    (response {:success true :result (db/execute! (sign-up-map email password))})))
 
 (defn login [email password]
   (let [valid? (auth/check-user email password)]
@@ -148,8 +147,8 @@
                                               db/query)]
         (println (str "user_id: " user_id))
         (auth/store-token token user_id)
-        (response {:token token :email email}))
-      (response {:error "Invalid authentication data"}))))
+        (response {:success true :token token :email email}))
+      (response {:success false :error "Invalid authentication data"}))))
 
 (defn whoami [request]
   (if (authenticated? request)
@@ -165,17 +164,15 @@
 (defn get-submissions []
   (-> (get-submissions-map)
       db/query
-      :result
       response))
 
 (defn get-admins-map []
-  (-> (select :email)
+  (-> (select :email :id)
       (from :users)))
 
 (defn get-admins []
   (-> (get-admins-map)
       db/query
-      :result
       response))
 
 (defn rm-sessions-map [email]
@@ -188,7 +185,7 @@
       db/query
       response))
 
-(defn vote [token vote1 vote2 vote3])
+;; (defn vote [token vote1 vote2 vote3])
 
 (defn handle-404 []
   (-> (response "Not found")
