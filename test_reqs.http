@@ -1,0 +1,45 @@
+# -*- restclient -*-
+
+POST http://localhost:4000/api/submit
+Content-Type: application/json
+{
+  "quote": "I am"
+}
+
+#
+
+POST http://localhost:4000/api/login
+Content-Type: application/json
+{
+  "email": "root@root.org",
+  "password": "1337"
+}
+
+#
+# Replace token with the result from the previous query
+
+POST http://localhost:4000/api/whoami
+Content-Type: application/json
+{
+  "token": "2fe3917b2bedaf04500d54b35497e644"
+}
+
+#
+
+GET http://localhost:4000/api/lastmessage
+Content-Type: application/json
+{}
+
+#
+
+POST http://localhost:4000/api/message
+Content-Type: application/json
+{
+  "messageID": 1
+}
+
+#
+
+POST http://localhost:4000/admin/admins
+Content-Type: application/json
+{}
