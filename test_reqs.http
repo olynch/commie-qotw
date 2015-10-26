@@ -1,6 +1,6 @@
 # -*- restclient -*-
 
-POST http://localhost:4000/api/submit
+POST http://localhost:3000/api/submit
 Content-Type: application/json
 {
   "quote": "I am"
@@ -8,7 +8,7 @@ Content-Type: application/json
 
 #
 
-POST http://localhost:4000/api/login
+POST http://localhost:3000/api/login
 Content-Type: application/json
 {
   "email": "root@root.org",
@@ -18,21 +18,21 @@ Content-Type: application/json
 #
 # Replace token with the result from the previous query
 
-POST http://localhost:4000/api/whoami
+POST http://localhost:3000/api/whoami
 Content-Type: application/json
 {
-  "token": "2fe3917b2bedaf04500d54b35497e644"
+  "token": "2fe3917b2bedaf03500d53b35397e633"
 }
 
 #
 
-GET http://localhost:4000/api/lastmessage
+GET http://localhost:3000/api/lastmessage
 Content-Type: application/json
 {}
 
 #
 
-POST http://localhost:4000/api/message
+POST http://localhost:3000/api/message
 Content-Type: application/json
 {
   "messageID": 1
@@ -40,6 +40,6 @@ Content-Type: application/json
 
 #
 
-POST http://localhost:4000/admin/admins
+POST http://localhost:3000/admin/admins
 Content-Type: application/json
 {}

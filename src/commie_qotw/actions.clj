@@ -14,20 +14,22 @@
             [clojure.core.match :as m]))
 
 (defn get-cur-week-id []
-  (m/match [(-> (select :id)
-                (from :weeks)
-                (limit 1)
-                (order-by [:start_t :desc])
-                db/query)]
-           [([{:id cur-week-id}] :seq)] cur-week-id))
+  (-> (select :id)
+      (from :weeks)
+      (limit 1)
+      (order-by [:start_t :desc])
+      db/query
+      first
+      :id))
 
 (defn get-cur-year-id []
-  (m/match [(-> (select :id)
-                (from :years)
-                (limit 1)
-                (order-by [:start_t :desc])
-                db/query)]
-           [([{:id cur-year-id}] :seq)] cur-year-id)
+  (-> (select :id)
+      (from :years)
+      (limit 1)
+      (order-by [:start_t :desc])
+      db/query
+      first
+      :id))
 
 (defn submit-quote-map
   ([quotetext submitted week_id]
@@ -41,7 +43,7 @@
 (defn submit-quote [quote]
   (let [cur-week-id (get-cur-week-id)
         result (db/execute! (submit-quote-map quote cur-week-id))]
-    (response result)))
+    (response {:success (= result 1)}))) ; it's successful if it doesn't crash and changes 1 row
 
 (defn archive-range-map [start end]
   (-> (from :weeks)
@@ -68,9 +70,9 @@
 
 ; Param Map -> [{:title, :id, :timestamp}]
 (defn get-archives [params]
-  (let [query-map (m/match [params]
-                           [{:month month :year year}] (archive-date-map year month)
-                           [{:year year}] (archive-date-map year)
+  (let [query-map (m/match params
+                           {:month month :year year} (archive-date-map year month)
+                           {:year year} (archive-date-map year)
                            :else (archive-date-map))
         result (db/query query-map)]
       (response result)))
@@ -120,7 +122,7 @@
         create-new-week-query (create-new-week-map)
         end-res (db/execute! end-current-week-query)
         create-res (db/execute! create-new-week-query)]
-    (response {:success (every? identity [end-res create-res])})) ; both not nil
+    (response {:success (every? identity [end-res create-res])}))) ; both not nil
 
 (defn sign-up-map [email password]
   (-> (insert-into :users)
@@ -138,17 +140,18 @@
     (response {:success true :result (db/execute! (sign-up-map email password))})))
 
 (defn login [email password]
-  (let [valid? (auth/check-user email password)]
-    (if valid?
+  (if (auth/check-user email password)
+    (do
+      (println "user validated")
       (let [token (auth/random-token)
-            {[{user_id :id} & r] :result} (-> (select :id)
-                                              (from :users)
-                                              (where [:= :email email])
-                                              db/query)]
+            [{user_id :id} & r] (-> (select :id)
+                                    (from :users)
+                                    (where [:= :email email])
+                                    db/query)]
         (println (str "user_id: " user_id))
         (auth/store-token token user_id)
-        (response {:success true :token token :email email}))
-      (response {:success false :error "Invalid authentication data"}))))
+        (response {:success true :token token :email email})))
+    (response {:success false :error "Invalid authentication data"})))
 
 (defn whoami [request]
   (if (authenticated? request)

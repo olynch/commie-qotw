@@ -23,9 +23,7 @@
       (values [[token user_id (c/to-sql-time (t/plus (t/now) (t/weeks 1)))]])))
 
 (defn store-token [token user_id]
-  (m/match [(db/execute! (store-token-map token user_id))]
-           [{:success true}] nil
-           [{:success false :error e}] (throw e)))
+  (db/execute! (store-token-map token user_id)))
 
 (defn check-token-map [token]
   (-> (from :sessions)
@@ -35,12 +33,12 @@
 
 (defn check-token [token]
   (m/match [(db/query (check-token-map token))]
-           [{:success true :result ([result & rest] :seq)}]
+           [([result & rest] :seq)]
            result
            :else nil))
 
 (defn check-user [email password]
-  (let [{result :result} (-> (select :hash)
+  (let [result (-> (select :hash)
                              (from :users)
                              (where [:= :email email])
                              db/query)]

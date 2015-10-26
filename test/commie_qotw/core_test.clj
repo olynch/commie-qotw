@@ -28,9 +28,10 @@
   (mock/request :get uri))
 
 (defn POST-response [app uri json-map]
-  (let [response (app (POST-request-json uri json-map))]
-    (println response)
-    (json/read-str (:body response) :key-fn keyword)))
+  (let [response (app (POST-request-json uri json-map))
+        body (:body response)]
+    (println "POST-response: " response)
+    (json/read-str body :key-fn keyword)))
 
 (defn GET-response [app uri]
   (let [response (app (GET-request uri))]
@@ -54,15 +55,16 @@
 (deftest test-login
   (testing "Logging in as test admin"
     (let [response (POST-response app
-                                  "/admin/login"
+                                  "/api/login"
                                   {:email "root@root.org"
                                    :password "1337"})]
+      (println response)
       (is (:success response))
       (let [token (:token response)]
-        (is (= (POST-response app
-                              "/api/whoami"
-                              {:token token})
-               ))))))
+        (is (= (:email (POST-response app
+                                      "/api/whoami"
+                                      {:token token}))
+               "root@root.org"))))))
 
 (deftest test-submit-quotes
   (testing "submitting quotes and then retrieving them"
