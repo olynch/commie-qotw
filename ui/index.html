@@ -54,10 +54,8 @@
 					$('button#subscribe').removeClass('btn-info').addClass('btn-warning');
 					$.ajax({
 						'url': '/api/subscribe',
-						'type': 'GET',
-						'data': {
-							'email': $('input#email').val()
-						},
+						'type': 'POST',
+						'data': $('input#email').val(),
 						'success': function(response) {
 							$('input#email').val('');
 							$('button#subscribe').removeClass('btn-warning');
