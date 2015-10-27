@@ -2,6 +2,7 @@
   (:refer-clojure :exclude [update])
   (:require [commie-qotw.db :as db]
             [commie-qotw.auth :as auth]
+            [commie-qotw.email :as email]
             [buddy.auth :refer [authenticated? throw-unauthorized]]
             [buddy.hashers :as hashers]
             [honeysql.core :as sql]
@@ -117,12 +118,32 @@
                :end_t (c/to-sql-time (t/now))})
         (where [:= :id cur-week-id]))))
 
+(defn create-vote-map [token]
+  (-> (insert-into :votes)
+      (columns :token)
+      (values [[token]])))
+
+(defn create-vote [subscriber]
+  (let [rand-token (auth/random-token)
+        rows-changed (db/execute! (create-vote-map random-token))]
+    rand-token))
+
+(defn create-votes [subscribers]
+  (doall (map create-vote subscribers)))
+
+(defn customize-bodies [tokens body]
+  (map #(string body "\nUse this code to vote: " %) tokens))
+
 (defn send-message [title body]
   (let [end-current-week-query (end-current-week-map title body)
         create-new-week-query (create-new-week-map)
         end-res (db/execute! end-current-week-query)
-        create-res (db/execute! create-new-week-query)]
-    (response {:success (every? identity [end-res create-res])}))) ; both not nil
+        create-res (db/execute! create-new-week-query)
+        subscribers (get-subscriptions)
+        tokens (create-votes subscribers)
+        bodies (customize-bodies tokens body)]
+    (dorun (map email/send-email subscribers (repeat title) bodies))
+    (response {:success (every? #(>= % 1) [end-res create-res])}))) ; all successful
 
 (defn sign-up-map [email password]
   (-> (insert-into :users)
