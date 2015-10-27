@@ -7,6 +7,13 @@
 		<script src = '/js/common.js'></script>
 		<title>Vote</title>
 		<script>
+			var querystring = window.location.href.substring(window.location.href.indexOf('?') + 1);
+			var query = querystring.split('&');
+			var keyValuePair;
+			for (var qwarg = 0; qwarg < query.length; qwarg++) {
+				keyValuePair = query[qwarg].split('=');
+				query[keyValuePair[0]] = keyValuePair[1];
+			}
 			function getIndexOfQuote(messageBody, quoteNumber) {
 				var searchString = '\n' + String(quoteNumber) + '. ';
 				var index = messageBody.indexOf(searchString);
@@ -29,7 +36,7 @@
 										$('<input>').attr('type', 'number').attr('min', 0).attr('max', 3).val(0)
 									)
 								).append(
-									$('<td>').text(response.body.substring(index, response.body.indexOf('\n\n', index)))
+									$('<td>').html(response.body.substring(index, response.body.indexOf('\n\n', index)).replace(/\n/g, '<br/>'))
 								)
 							);
 						}
@@ -49,13 +56,16 @@
 					$.ajax({
 						'url': '/api/vote',
 						'type': 'POST',
-						'data': JSON.stringify(quoteVotes),
+						'data': JSON.stringify({
+							'quotes': quoteVotes,
+							'token': query.token
+						}),
 						'dataType': 'json',
 						'success': function(response) {
 							if (response.success) $('button#submit').removeClass('btn-warning').addClass('btn-success');
 							else $('button#submit').removeClass('btn-warning').addClass('btn-danger');
 							alert('Success!');
-							window.location.href = '/';
+							window.location.assign('/');
 						},
 						'error': function() {
 							$('button#submit').removeClass('btn-warning').addClass('btn-danger');

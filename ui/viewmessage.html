@@ -9,21 +9,23 @@
 		<script>
 			var querystring = window.location.href.substring(window.location.href.indexOf('?') + 1);
 			var query = querystring.split('&');
-			var keyValuePair
+			var keyValuePair;
 			for (var qwarg = 0; qwarg < query.length; qwarg++) {
 				keyValuePair = query[qwarg].split('=');
 				query[keyValuePair[0]] = keyValuePair[1];
 			}
-			$.ajax({
-				'url': '/api/message',
-				'data': {
-					'id': query.id
-				},
-				'dataType': 'json',
-				'success': function(response) {
-					$('title').text(response.title);
-					$('p#message-body').html(response.body.replace(/\n/g, '<br />'));
-				}
+			$(document).ready(function() {
+				$.ajax({
+					'url': '/api/message',
+					'data': {
+						'id': query.id
+					},
+					'dataType': 'json',
+					'success': function(response) {
+						$('title').text(response.title);
+						$('p#message-body').html(response.body.replace(/\n/g, '<br />'));
+					}
+				});
 			});
 		</script>
 	</head>

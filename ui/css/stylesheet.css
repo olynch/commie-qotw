@@ -87,6 +87,9 @@ div#vote-row {
 	right:0px;
 	bottom:0px;
 }
+table#votes {
+	margin-bottom:0px;
+}
 table#votes>thead>tr>th {
 	text-align:center;
 }
