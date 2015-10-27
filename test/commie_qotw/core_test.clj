@@ -36,9 +36,12 @@
   (let [response (app (GET-request uri))]
     (json/read-str (:body response) :key-fn keyword)))
 
+(defn get-auth-token [app]
+  (:token (POST-response app "/api/login" {:email "root@root.org" :password "1337"})))
+
 (deftest test-get-message
   (testing "Sending message and then retrieving it"
-    (let [token (:token (POST-response app "/api/login" {:email "root@root.org" :password "1337"}))]
+    (let [token (get-auth-token app)]
       (is (= (POST-response app
                             "/admin/send-message"
                             {:title "inaugural message"
@@ -76,8 +79,28 @@
                           "/api/submit"
                           {:quote "Trivial.\n--Thomas D."})
            {:success true}))
-    (let [token (:token (POST-response app "/api/login" {:email "root@root.org" :password "1337"}))]
+    (let [token (get-auth-token app)]
       (is (= (POST-response app
                            "/admin/submissions"
                            {:token token})
              [{:quote "You are.\n--Pher"} {:quote "Trivial.\n--Thomas D."}])))))
+
+(deftest test-subscriptions
+  (testing "adding subscribers and then removing them"
+    (is (= (POST-response app
+                          "/api/subscribe"
+                          {:email "scrub@root.org"})
+           {:success true}))
+    (let [token (get-auth-token app)]
+      (is (= (POST-response app
+                           "/admin/subscriptions"
+                           {:token token})
+             [{:email "scrub@root.org"}]))
+      (is (= (POST-response app
+                            "/api/unsubscribe"
+                            {:email "scrub@root.org"})
+             {:success true}))
+      (is (= (POST-response app
+                           "/admin/subscriptions"
+                           {:token token})
+             [])))))

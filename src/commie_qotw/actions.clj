@@ -188,6 +188,32 @@
       db/query
       response))
 
+(defn add-subscriber-map [email]
+  (-> (insert-into :subscribers)
+      (columns :email)
+      (values [[email]])))
+
+(defn add-subscriber [email]
+  (let [rows-changed (db/execute! (add-subscriber-map email))]
+    (response {:success (= rows-changed 1)})))
+
+(defn rm-subscriber-map [email]
+  (-> (delete-from :subscribers)
+      (where [:= :email email])))
+
+(defn rm-subscriber [email]
+  (let [rows-changed (db/execute! (rm-subscriber-map email))]
+    (response {:success (= rows-changed 1)})))
+
+(defn get-subscriptions-map []
+  (-> (select :email)
+      (from :subscribers)))
+
+(defn get-subscriptions []
+  (-> (get-subscriptions-map)
+      db/query
+      response))
+
 ;; (defn vote [token vote1 vote2 vote3])
 
 (defn handle-404 []

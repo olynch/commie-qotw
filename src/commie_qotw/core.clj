@@ -21,6 +21,10 @@
       (get-lastmessage))
     (POST "/whoami" request
       (whoami request))
+    (POST "/subscribe" [email]
+      (add-subscriber email))
+    (POST "/unsubscribe" [email]
+      (rm-subscriber email))
     (POST "/login" [email password]
       (login email password))
     #_(POST "/vote" [vote]
@@ -30,6 +34,8 @@
       (send-message title body))
     (POST "/submissions" []
       (get-submissions))
+    (POST "/subscriptions" []
+      (get-subscriptions))
     (POST "/admins" []
       (get-admins))
     (POST "/addadmin" [email password]

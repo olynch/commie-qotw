@@ -1,7 +1,9 @@
 - [x] Write migration infrastructure
 - [x] Write migrations
 - [x] Write integration tests to cover current API functionality
+- [x] Write subscription system
 - [ ] Write voting system
+- [ ] Refactor actions.clj to use private methods and some macro for simple SQL functions
 - [ ] Figure out deploy situation
   - [ ] Uberjar/Uberwar
   - [ ] How to integrate with email server?
