@@ -30,7 +30,6 @@
 (defn POST-response [app uri json-map]
   (let [response (app (POST-request-json uri json-map))
         body (:body response)]
-    (println "POST-response: " response)
     (json/read-str body :key-fn keyword)))
 
 (defn GET-response [app uri]
@@ -39,11 +38,13 @@
 
 (deftest test-get-message
   (testing "Sending message and then retrieving it"
-    (is (= (POST-response app
-                          "/api/send-message"
-                          {:title "inaugural message"
-                           :body "qotw.net is dead\nlong live qotw.net"})
-           {:success true}))
+    (let [token (:token (POST-response app "/api/login" {:email "root@root.org" :password "1337"}))]
+      (is (= (POST-response app
+                            "/admin/send-message"
+                            {:title "inaugural message"
+                             :body "qotw.net is dead\nlong live qotw.net"
+                             :token token})
+             {:success true})))
     (let [{last-msg-id :id} (GET-response app "/api/lastmessage")]
       (is (= (POST-response app
                             "/api/message"
@@ -58,7 +59,6 @@
                                   "/api/login"
                                   {:email "root@root.org"
                                    :password "1337"})]
-      (println response)
       (is (:success response))
       (let [token (:token response)]
         (is (= (:email (POST-response app
@@ -76,4 +76,8 @@
                           "/api/submit"
                           {:quote "Trivial.\n--Thomas D."})
            {:success true}))
-    (is (= ()))))
+    (let [token (:token (POST-response app "/api/login" {:email "root@root.org" :password "1337"}))]
+      (is (= (POST-response app
+                           "/admin/submissions"
+                           {:token token})
+             [{:quote "You are.\n--Pher"} {:quote "Trivial.\n--Thomas D."}])))))
