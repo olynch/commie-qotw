@@ -125,7 +125,7 @@
 
 (defn create-vote [subscriber]
   (let [rand-token (auth/random-token)
-        rows-changed (db/execute! (create-vote-map random-token))]
+        rows-changed (db/execute! (create-vote-map rand-token))]
     rand-token))
 
 (defn create-votes [subscribers]
@@ -143,7 +143,7 @@
         tokens (create-votes subscribers)
         bodies (customize-bodies tokens body)]
     (dorun (map email/send-email subscribers (repeat title) bodies))
-    (response {:success (every? #(>= % 1) [end-res create-res])}))) ; all successful
+    (response {:success (every? #(>= % 1) [end-res create-res]) :tokens tokens}))) ; all successful
 
 (defn sign-up-map [email password]
   (-> (insert-into :users)
@@ -182,7 +182,7 @@
 (defn get-submissions-map []
   (let [cur-week-id (get-cur-week-id)]
     (-> (from :quotes)
-        (select :quote)
+        (select :quote :id)
         (where [:= :week_id cur-week-id]))))
 
 (defn get-submissions []
@@ -235,7 +235,24 @@
       db/query
       response))
 
-;; (defn vote [token vote1 vote2 vote3])
+(defn vote-map [token vote1 vote2 vote3]
+  (-> (update :votes)
+      (sset {:vote1 vote1
+             :vote2 vote2
+             :vote3 vote3})
+      (where [:= :token token])))
+
+(defn vote [token vote1 vote2 vote3]
+  (let [rows-changed (db/execute! (vote-map token vote1 vote2 vote3))]
+    {:success (= rows-changed 1)}))
+
+(defn get-votes-map []
+  (-> (select :vote1 :vote2 :vote3)
+      (from :votes)
+      (where [:= :week_id (get-cur-week-id)])))
+
+(defn get-votes []
+  (db/query (get-votes-map)))
 
 (defn handle-404 []
   (-> (response "Not found")

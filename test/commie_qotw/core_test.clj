@@ -7,17 +7,18 @@
             [commie-qotw.db :as db]
             [commie-qotw.actions :as a]))
 
-(defn wrap-fresh-db [f]
-                                        ; assumes a fresh db (can have ragtime table)
+(defn wrap-migrations [f]
+  ;; assumes a fresh db (can have ragtime table)
   (ragtime/migrate (db/load-ragtime-config))
   (a/initialize)
-  (f)
-  (ragtime/rollback (db/load-ragtime-config) "001-create-messages")
-  (ragtime/rollback (db/load-ragtime-config) 1)
-                                        ; leaves with a fresh db (plus ragtime table)
+  (try  (f)
+        (finally
+          (ragtime/rollback (db/load-ragtime-config) "001-create-messages")
+          (ragtime/rollback (db/load-ragtime-config) 1)))
+  ;; leaves with a fresh db (plus ragtime table)
   )
 
-(use-fixtures :once wrap-fresh-db)
+(use-fixtures :each wrap-migrations)
 
 (defn POST-request-json [uri json-map]
   (-> (mock/request :post uri)
@@ -80,10 +81,10 @@
                           {:quote "Trivial.\n--Thomas D."})
            {:success true}))
     (let [token (get-auth-token app)]
-      (is (= (POST-response app
-                           "/admin/submissions"
-                           {:token token})
-             [{:quote "You are.\n--Pher"} {:quote "Trivial.\n--Thomas D."}])))))
+      (is (= (map :quote (POST-response app
+                                        "/admin/submissions"
+                                        {:token token}))
+             ["You are.\n--Pher" "Trivial.\n--Thomas D."])))))
 
 (deftest test-subscriptions
   (testing "adding subscribers and then removing them"
@@ -104,3 +105,33 @@
                            "/admin/subscriptions"
                            {:token token})
              [])))))
+
+(deftest test-voting
+  (testing "add subscriber, send out message, vote using token, look at votes"
+    (is (= (POST-response app
+                          "/api/subscribe"
+                          {:email "scrub@root.org"})
+           {:success true}))
+    (is (= (POST-response app
+                          "/api/submit"
+                          {:quote "Your MOTHER is so applied!\n--Mr. Letarte"})
+           {:success true}))
+    (let [token (get-auth-token app)
+          send-msg-result (POST-response app
+                                         "/admin/send-message"
+                                         {:title "Quotopotamus"
+                                          :body "Now we care about your feedback!"
+                                          :token token})]
+      (is (:success send-msg-result))
+      (let [[{quote-id :id} & r] (POST-response app
+                                                "/admin/submissions"
+                                                {:token token})]
+        (is (= (POST-response app
+                              "/api/vote"
+                              {:token (first (:tokens send-msg-result))
+                               :votes [quote-id quote-id quote-id]})
+               {:success true}))
+        (is (= (POST-response app
+                              "/admin/votes"
+                              {:token token})
+               {:votes [[quote-id quote-id quote-id]]}))))))

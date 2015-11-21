@@ -50,6 +50,7 @@
 ;; vote1 : references quotes (id)
 ;; vote2 : references quotes (id)
 ;; vote3 : references quotes (id)
+;; week_id : references weeks (id)
 ;; id : serial
 
 ;; Subscribers table keys:
@@ -111,4 +112,3 @@
                             sql/format
                             (j/execute! (db-connection)))]
     rows-changed))
-
