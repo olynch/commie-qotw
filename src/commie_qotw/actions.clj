@@ -118,32 +118,22 @@
                :end_t (c/to-sql-time (t/now))})
         (where [:= :id cur-week-id]))))
 
-(defn create-vote-map [token]
+(defn create-vote-map [token week-id]
   (-> (insert-into :votes)
-      (columns :token)
-      (values [[token]])))
+      (columns :token :week_id)
+      (values [[token week-id]])))
 
-(defn create-vote [subscriber]
+(defn create-vote [subscriber week-id]
   (let [rand-token (auth/random-token)
-        rows-changed (db/execute! (create-vote-map rand-token))]
+        rows-changed (db/execute! (create-vote-map rand-token week-id))]
     rand-token))
 
 (defn create-votes [subscribers]
-  (doall (map create-vote subscribers)))
+  (let [cur-week-id (get-cur-week-id)]
+    (doall (map #(create-vote % cur-week-id) subscribers))))
 
 (defn customize-bodies [tokens body]
-  (map #(string body "\nUse this code to vote: " %) tokens))
-
-(defn send-message [title body]
-  (let [end-current-week-query (end-current-week-map title body)
-        create-new-week-query (create-new-week-map)
-        end-res (db/execute! end-current-week-query)
-        create-res (db/execute! create-new-week-query)
-        subscribers (get-subscriptions)
-        tokens (create-votes subscribers)
-        bodies (customize-bodies tokens body)]
-    (dorun (map email/send-email subscribers (repeat title) bodies))
-    (response {:success (every? #(>= % 1) [end-res create-res]) :tokens tokens}))) ; all successful
+  (map #(str body "\nUse this code to vote: " %) tokens))
 
 (defn sign-up-map [email password]
   (-> (insert-into :users)
@@ -253,6 +243,24 @@
 
 (defn get-votes []
   (db/query (get-votes-map)))
+
+(defn send-message [title body]
+  (let [end-current-week-query (end-current-week-map title body)
+        _ (println 1)
+        create-new-week-query (create-new-week-map)
+        _ (println 2)
+        end-res (db/execute! end-current-week-query)
+        _ (println 3)
+        create-res (db/execute! create-new-week-query)
+        _ (println 4)
+        subscribers (get-subscriptions)
+        _ (println 5)
+        tokens (create-votes subscribers)
+        _ (println 6)
+        bodies (customize-bodies tokens body)
+        _ (println 7)]
+    (dorun (map email/send-email subscribers (repeat title) bodies))
+    (response {:success (every? #(>= % 1) [end-res create-res]) :tokens tokens}))) ; all successful
 
 (defn handle-404 []
   (-> (response "Not found")
